@@ -7,9 +7,6 @@ from .half_precision import HalfLinear
 
 
 class LoRALinear(HalfLinear):
-    lora_a: torch.nn.Module
-    lora_b: torch.nn.Module
-
     def __init__(
         self,
         in_features: int,
@@ -69,10 +66,6 @@ class LoraBigNet(torch.nn.Module):
                 LoRALinear(channels, channels, lora_dim)
             )
 
-            for module in self.model.modules():
-                if isinstance(module, HalfLinear):
-                    for param in module.parameters():
-                        param.requires_grad_(False)
 
         def forward(self, x: torch.Tensor):
             return self.model(x) + x
