@@ -28,8 +28,8 @@ class LoRALinear(HalfLinear):
         super().__init__(in_features, out_features, bias)
         
         #freeze the model params
-        for param in super().parameters():
-            param.requires_grad_(False)
+        for param in self.parameters():
+            param.requires_grad=False
 
         #initialize the lora layers
         self.lora_a = torch.nn.Linear(in_features, lora_dim, bias=False, dtype = torch.float32)
@@ -46,11 +46,11 @@ class LoRALinear(HalfLinear):
 
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        base_out = super().forward(x.to(torch.float16))
+        base_out = super().forward(x)
 
-        lora_out = self.alpha_div_rank * self.lora_b(self.lora_a(x.to(torch.float32)))
+        lora_out = (self.alpha_div_rank * lora_out).to(base_out.dtype)
 
-        return base_out + lora_out.to(base_out.dtype)
+        return base_out + lora_out
 
 
 class LoraBigNet(torch.nn.Module):
