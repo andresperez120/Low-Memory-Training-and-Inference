@@ -28,9 +28,9 @@ class HalfLinear(torch.nn.Linear):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Convert input to half precision to match weight dtype
         x_half = x.to(torch.float16)
-        # Perform linear operation in half precision
+        #linear operation in half precision
         out = torch.nn.functional.linear(x_half, self.weight, self.bias)
-        # Convert back to input dtype
+        #Convert back
         return out.to(x.dtype)
 
 

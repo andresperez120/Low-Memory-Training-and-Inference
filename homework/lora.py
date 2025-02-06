@@ -44,11 +44,9 @@ class LoRALinear(HalfLinear):
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         base_out = super().forward(x.to(torch.float16))  # Base model uses float16
-
-        # Compute LoRA output (LoRA layers work in float32)
+        #LoRA output (LoRA layers work in float32)
         lora_out = self.alpha_div_rank * self.lora_b(self.lora_a(x.to(torch.float32)))
 
-        # Cast LoRA output to base_out dtype and sum
         return base_out + lora_out.to(base_out.dtype)
 
 
@@ -72,7 +70,7 @@ class LoraBigNet(torch.nn.Module):
 
     def __init__(self, lora_dim: int = 32):
         super().__init__()
-        #making sure to structure the model as described
+
         self.model = torch.nn.Sequential(
             self.Block(BIGNET_DIM, lora_dim),
             LayerNorm(BIGNET_DIM),

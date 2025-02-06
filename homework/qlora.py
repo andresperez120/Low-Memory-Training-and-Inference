@@ -20,30 +20,26 @@ class QLoRALinear(Linear4Bit):
         self.requires_grad_(False)
 
         # TODO: Implement LoRA, initialize the layers, and make sure they are trainable
-        # Keep the LoRA layers in float32
+        #keep lora layers in float32
         for param in self.parameters():
             param.requires_grad=False
 
         self.lora_a = torch.nn.Linear(in_features, lora_dim, bias=False, dtype=torch.float32)
         self.lora_b = torch.nn.Linear(lora_dim, out_features, bias=False, dtype=torch.float32)
 
-        # Using alpha=1 for more stable initialization
         self.alpha_div_rank = alpha / lora_dim
 
-        # Initialize weights
         torch.nn.init.kaiming_uniform_(self.lora_a.weight)
         torch.nn.init.zeros_(self.lora_b.weight)
 
-        # Make LoRA trainable
         self.lora_a.requires_grad_(True)
         self.lora_b.requires_grad_(True)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # TODO: Forward. Make sure to cast inputs to self.linear_dtype and the output back to x.dtype
-        # Base model forward (handles 4-bit quantization internally)
         base_out = super().forward(x)
 
-        # LoRA forward in float32
+        #lora forward in float32
         lora_out = self.lora_b(self.lora_a(x.to(torch.float32)))
         lora_out = (self.alpha_div_rank * lora_out).to(base_out.dtype)
 
