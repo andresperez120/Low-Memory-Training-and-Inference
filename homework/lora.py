@@ -40,8 +40,10 @@ class LoRALinear(HalfLinear):
         torch.nn.init.kaiming_uniform_(self.lora_a.weight)
         torch.nn.init.zeros_(self.lora_b.weight)
 
+        self.lora_a.requires_grad_(True)
+        self.lora_b.requires_grad_(True)
 
-        
+
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         base_out = super().forward(x.to(torch.float16))
@@ -90,10 +92,6 @@ class LoraBigNet(torch.nn.Module):
             self.Block(BIGNET_DIM, lora_dim),
         )
 
-        for module in self.model.modules():
-            if isinstance(module, HalfLinear):
-                for param in module.parameters():
-                    param.requires_grad_(False)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
